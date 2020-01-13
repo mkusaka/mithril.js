@@ -450,6 +450,7 @@
 		}
 	}
 
+	// 更新用のnode作成器
 	function buildUpdatedNode(
 		cached,
 		data,
@@ -466,6 +467,7 @@
 			setAttributes(node, data.tag, data.attrs, cached.attrs, namespace)
 		}
 
+		// 子ノードに追加
 		cached.children = build(
 			node,
 			data.tag,
@@ -482,6 +484,7 @@
 
 		cached.nodes.intact = true
 
+		// controllerが存在すればviewsと共にキャシュする
 		if (controllers.length) {
 			cached.views = views
 			cached.controllers = controllers
@@ -674,6 +677,7 @@
 		return cached
 	}
 
+	// たぶんここがnodeの実態作るところ
 	function constructNode(data, namespace) {
 		if (data.attrs.is) {
 			if (namespace == null) {
@@ -831,6 +835,7 @@
 		return data
 	}
 
+	// node生成ロジック
 	function buildObject( // eslint-disable-line max-statements
 		data,
 		cached,
@@ -868,6 +873,7 @@
 		namespace = getObjectNamespace(data, namespace)
 
 		var node
+		// cached.nodesがなければnodeを作ってcacheする
 		if (isNew) {
 			node = constructNode(data, namespace)
 			// set attributes first, then create children
@@ -888,6 +894,7 @@
 				views,
 				controllers)
 		} else {
+			// 更新用のnode作成
 			node = buildUpdatedNode(
 				cached,
 				data,
@@ -906,6 +913,7 @@
 				namespace)
 		}
 
+		// こうしんする必要があれば差分だけ適用
 		if (!isNew && shouldReattach === true && node != null) {
 			insertNode(parentElement, node, index)
 		}
@@ -916,6 +924,7 @@
 		return cached
 	}
 
+	// domの差分を検知してcache等々をアップデートするコア機能
 	function build(
 		parentElement,
 		parentTag,
@@ -1609,7 +1618,7 @@
 	var routeParams
 
 	m.route = function (root, arg1, arg2, vdom) { // eslint-disable-line
-		// m.route()
+		// m.rout
 		if (arguments.length === 0) return currentRoute
 		// m.route(el, defaultRoute, routes)
 		if (arguments.length === 3 && isString(arg1)) {
