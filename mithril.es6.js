@@ -1,11 +1,13 @@
 /* global Promise */
 
-((global, factory) => // eslint-disable-line
-{
-    /* eslint-disable no-undef */
-    const m = factory(global);
-    /*	Set dependencies when no window for isomorphic compatibility */
-    if (typeof window === "undefined") {
+((
+	global,
+	factory // eslint-disable-line
+) => {
+	/* eslint-disable no-undef */
+	const m = factory(global);
+	/*	Set dependencies when no window for isomorphic compatibility */
+	if (typeof window === "undefined") {
 		m.deps({
 			document: typeof document !== "undefined" ? document : {},
 			location: typeof location !== "undefined" ? location : {},
@@ -13,43 +15,41 @@
 			setTimeout
 		});
 	}
-    if (typeof module === "object" && module != null && module.exports) {
+	if (typeof module === "object" && module != null && module.exports) {
 		module.exports = m;
 	} else if (typeof define === "function" && define.amd) {
 		define(() => m);
 	} else {
 		global.m = m;
 	}
-    /* eslint-enable no-undef */
+	/* eslint-enable no-undef */
 })(typeof window !== "undefined" ? window : this, function factory(
 	global,
-	undefined
-) // eslint-disable-line
-{
-    m.version = () => "v0.2.8";
+	undefined // eslint-disable-line
+) {
+	m.version = () => "v0.2.8";
 
-    const hasOwn = {}.hasOwnProperty;
-    const type = {}.toString;
+	const hasOwn = {}.hasOwnProperty;
+	const type = {}.toString;
 
-    function isFunction(object) {
+	function isFunction(object) {
 		return typeof object === "function";
 	}
 
-    function isObject(object) {
+	function isObject(object) {
 		return type.call(object) === "[object Object]";
 	}
 
-    function isString(object) {
+	function isString(object) {
 		return type.call(object) === "[object String]";
 	}
 
-    const isArray =
-		Array.isArray ||
-		(object => type.call(object) === "[object Array]");
+	const isArray =
+		Array.isArray || (object => type.call(object) === "[object Array]");
 
-    function noop() {}
+	function noop() {}
 
-    const voidElements = {
+	const voidElements = {
 		AREA: 1,
 		BASE: 1,
 		BR: 1,
@@ -68,38 +68,38 @@
 		WBR: 1
 	};
 
-    // caching commonly used variables
-    let $document;
+	// caching commonly used variables
+	let $document;
 
-    let $location;
-    let $requestAnimationFrame;
-    let $cancelAnimationFrame;
+	let $location;
+	let $requestAnimationFrame;
+	let $cancelAnimationFrame;
 
-    // self invoking function needed because of the way mocks work
-    function initialize(mock) {
+	// self invoking function needed because of the way mocks work
+	function initialize(mock) {
 		$document = mock.document;
 		$location = mock.location;
 		$cancelAnimationFrame = mock.cancelAnimationFrame || mock.clearTimeout;
 		$requestAnimationFrame = mock.requestAnimationFrame || mock.setTimeout;
 	}
 
-    // testing API
-    m.deps = mock => {
+	// testing API
+	m.deps = mock => {
 		initialize((global = mock || window));
 		return global;
 	};
 
-    m.deps.factory = m.factory = factory;
+	m.deps.factory = m.factory = factory;
 
-    m.deps(global);
+	m.deps(global);
 
-    /**
+	/**
 	 * @typedef {String} Tag
 	 * A string that looks like -> div.classname#id[param=one][param2=two]
 	 * Which describes a DOM node
 	 */
 
-    function parseTagAttrs(cell, tag) {
+	function parseTagAttrs(cell, tag) {
 		const classes = [];
 		/* eslint-disable max-len */
 		const parser = /(?:(^|#|\.)([^#\.\[\]]+))|(\[(.+?)(?:\s*=\s*("|'|)((?:\\["'\]]|.)*?)\5)?\])/g;
@@ -125,7 +125,7 @@
 		return classes;
 	}
 
-    function getVirtualChildren(args, hasAttrs) {
+	function getVirtualChildren(args, hasAttrs) {
 		const children = hasAttrs ? args.slice(1) : args;
 
 		if (children.length === 1 && isArray(children[0])) {
@@ -135,7 +135,7 @@
 		}
 	}
 
-    function assignAttrs(target, attrs, classes) {
+	function assignAttrs(target, attrs, classes) {
 		const classAttr = "class" in attrs ? "class" : "className";
 
 		for (const attrName in attrs) {
@@ -157,190 +157,199 @@
 		if (classes.length) target[classAttr] = classes.join(" ");
 	}
 
-    /**
+	/**
 	 *
 	 * @param {Tag} The DOM node tag
 	 * @param {Object=[]} optional key-value pairs to be mapped to DOM attrs
 	 * @param {...mNode=[]} Zero or more Mithril child nodes. Can be an array,
 	 *                      or splat (optional)
 	 */
-    class m {
-        constructor(tag, pairs) {
-            const args = [];
+	class m {
+		constructor(tag, pairs) {
+			const args = [];
 
-            for (let i = 1, length = arguments.length; i < length; i++) {
-                args[i - 1] = arguments[i];
-            }
+			for (let i = 1, length = arguments.length; i < length; i++) {
+				args[i - 1] = arguments[i];
+			}
 
-            if (tag && isFunction(tag.view)) return parameterize(tag, args);
+			if (tag && isFunction(tag.view)) return parameterize(tag, args);
 
-            if (!isString(tag)) {
-                throw new Error(
-                    "selector in m(selector, attrs, children) should " +
-                        "be a string"
-                );
-            }
+			if (!isString(tag)) {
+				throw new Error(
+					"selector in m(selector, attrs, children) should " +
+						"be a string"
+				);
+			}
 
-            const hasAttrs =
-                pairs != null &&
-                isObject(pairs) &&
-                !("tag" in pairs || "view" in pairs || "subtree" in pairs);
+			const hasAttrs =
+				pairs != null &&
+				isObject(pairs) &&
+				!("tag" in pairs || "view" in pairs || "subtree" in pairs);
 
-            const attrs = hasAttrs ? pairs : {};
-            const cell = {
-                tag: "div",
-                attrs: {},
-                children: getVirtualChildren(args, hasAttrs)
-            };
+			const attrs = hasAttrs ? pairs : {};
+			const cell = {
+				tag: "div",
+				attrs: {},
+				children: getVirtualChildren(args, hasAttrs)
+			};
 
-            assignAttrs(cell.attrs, attrs, parseTagAttrs(cell, tag));
-            return cell;
-        }
+			assignAttrs(cell.attrs, attrs, parseTagAttrs(cell, tag));
+			return cell;
+		}
 
-        static component(component) {
-            const args = new Array(arguments.length - 1);
+		static component(component) {
+			const args = new Array(arguments.length - 1);
 
-            for (let i = 1; i < arguments.length; i++) {
-                args[i - 1] = arguments[i];
-            }
+			for (let i = 1; i < arguments.length; i++) {
+				args[i - 1] = arguments[i];
+			}
 
-            return parameterize(component, args);
-        }
+			return parameterize(component, args);
+		}
 
-        static route(root, arg1, arg2, {attrs}) {
-            // eslint-disable-line
-            // m.rout
-            if (arguments.length === 0) return currentRoute;
-            // m.route(el, defaultRoute, routes)
-            if (arguments.length === 3 && isString(arg1)) {
-                redirect = source => {
-                    const path = (currentRoute = normalizeRoute(source));
-                    if (!routeByValue(root, arg2, path)) {
-                        if (isDefaultRoute) {
-                            throw new Error(
-                                "Ensure the default route matches " +
-                                    "one of the routes defined in m.route"
-                            );
-                        }
+		static route(root, arg1, arg2, { attrs }) {
+			// eslint-disable-line
+			// m.rout
+			if (arguments.length === 0) return currentRoute;
+			// m.route(el, defaultRoute, routes)
+			if (arguments.length === 3 && isString(arg1)) {
+				redirect = source => {
+					const path = (currentRoute = normalizeRoute(source));
+					if (!routeByValue(root, arg2, path)) {
+						if (isDefaultRoute) {
+							throw new Error(
+								"Ensure the default route matches " +
+									"one of the routes defined in m.route"
+							);
+						}
 
-                        isDefaultRoute = true;
-                        m.route(arg1, true);
-                        isDefaultRoute = false;
-                    }
-                };
+						isDefaultRoute = true;
+						m.route(arg1, true);
+						isDefaultRoute = false;
+					}
+				};
 
-                const listener =
-                    m.route.mode === "hash" ? "onhashchange" : "onpopstate";
+				const listener =
+					m.route.mode === "hash" ? "onhashchange" : "onpopstate";
 
-                global[listener] = () => {
-                    let path = $location[m.route.mode];
-                    if (m.route.mode === "pathname") path += $location.search;
-                    if (currentRoute !== normalizeRoute(path)) redirect(path);
-                };
+				global[listener] = () => {
+					let path = $location[m.route.mode];
+					if (m.route.mode === "pathname") path += $location.search;
+					if (currentRoute !== normalizeRoute(path)) redirect(path);
+				};
 
-                computePreRedrawHook = setScroll;
-                global[listener]();
+				computePreRedrawHook = setScroll;
+				global[listener]();
 
-                return;
-            }
+				return;
+			}
 
-            // config: m.route
-            if (root.addEventListener || root.attachEvent) {
-                const base = m.route.mode !== "pathname" ? $location.pathname : "";
-                root.href = base + modes[m.route.mode] + attrs.href;
-                if (root.addEventListener) {
-                    root.removeEventListener("click", routeUnobtrusive);
-                    root.addEventListener("click", routeUnobtrusive);
-                } else {
-                    root.detachEvent("onclick", routeUnobtrusive);
-                    root.attachEvent("onclick", routeUnobtrusive);
-                }
+			// config: m.route
+			if (root.addEventListener || root.attachEvent) {
+				const base =
+					m.route.mode !== "pathname" ? $location.pathname : "";
+				root.href = base + modes[m.route.mode] + attrs.href;
+				if (root.addEventListener) {
+					root.removeEventListener("click", routeUnobtrusive);
+					root.addEventListener("click", routeUnobtrusive);
+				} else {
+					root.detachEvent("onclick", routeUnobtrusive);
+					root.attachEvent("onclick", routeUnobtrusive);
+				}
 
-                return;
-            }
-            // m.route(route, params, shouldReplaceHistoryEntry)
-            if (isString(root)) {
-                previousRoute = currentRoute;
-                currentRoute = root;
+				return;
+			}
+			// m.route(route, params, shouldReplaceHistoryEntry)
+			if (isString(root)) {
+				previousRoute = currentRoute;
+				currentRoute = root;
 
-                const args = arg1 || {};
-                const queryIndex = currentRoute.indexOf("?");
-                let params;
+				const args = arg1 || {};
+				const queryIndex = currentRoute.indexOf("?");
+				let params;
 
-                if (queryIndex > -1) {
-                    params = parseQueryString(currentRoute.slice(queryIndex + 1));
-                } else {
-                    params = {};
-                }
+				if (queryIndex > -1) {
+					params = parseQueryString(
+						currentRoute.slice(queryIndex + 1)
+					);
+				} else {
+					params = {};
+				}
 
-                for (const i in args) {
-                    if (hasOwn.call(args, i)) {
-                        params[i] = args[i];
-                    }
-                }
+				for (const i in args) {
+					if (hasOwn.call(args, i)) {
+						params[i] = args[i];
+					}
+				}
 
-                const querystring = buildQueryString(params);
-                let currentPath;
+				const querystring = buildQueryString(params);
+				let currentPath;
 
-                if (queryIndex > -1) {
-                    currentPath = currentRoute.slice(0, queryIndex);
-                } else {
-                    currentPath = currentRoute;
-                }
+				if (queryIndex > -1) {
+					currentPath = currentRoute.slice(0, queryIndex);
+				} else {
+					currentPath = currentRoute;
+				}
 
-                if (querystring) {
-                    currentRoute =
-                        currentPath +
-                        (!currentPath.includes("?") ? "?" : "&") +
-                        querystring;
-                }
+				if (querystring) {
+					currentRoute =
+						currentPath +
+						(!currentPath.includes("?") ? "?" : "&") +
+						querystring;
+				}
 
-                const replaceHistory =
-                    (arguments.length === 3 ? arg2 : arg1) === true ||
-                    previousRoute === currentRoute;
+				const replaceHistory =
+					(arguments.length === 3 ? arg2 : arg1) === true ||
+					previousRoute === currentRoute;
 
-                if (global.history.pushState) {
-                    const method = replaceHistory ? "replaceState" : "pushState";
-                    computePreRedrawHook = setScroll;
-                    computePostRedrawHook = () => {
-                        try {
-                            global.history[method](
-                                null,
-                                $document.title,
-                                modes[m.route.mode] + currentRoute
-                            );
-                        } catch (err) {
-                            // In the event of a pushState or replaceState failure,
-                            // fallback to a standard redirect. This is specifically
-                            // to address a Safari security error when attempting to
-                            // call pushState more than 100 times.
-                            $location[m.route.mode] = currentRoute;
-                        }
-                    };
-                    redirect(modes[m.route.mode] + currentRoute);
-                } else {
-                    $location[m.route.mode] = currentRoute;
-                    redirect(modes[m.route.mode] + currentRoute);
-                }
+				if (global.history.pushState) {
+					const method = replaceHistory
+						? "replaceState"
+						: "pushState";
+					computePreRedrawHook = setScroll;
+					computePostRedrawHook = () => {
+						try {
+							global.history[method](
+								null,
+								$document.title,
+								modes[m.route.mode] + currentRoute
+							);
+						} catch (err) {
+							// In the event of a pushState or replaceState failure,
+							// fallback to a standard redirect. This is specifically
+							// to address a Safari security error when attempting to
+							// call pushState more than 100 times.
+							$location[m.route.mode] = currentRoute;
+						}
+					};
+					redirect(modes[m.route.mode] + currentRoute);
+				} else {
+					$location[m.route.mode] = currentRoute;
+					redirect(modes[m.route.mode] + currentRoute);
+				}
 
-                previousRoute = null;
-            }
-        }
-    }
+				previousRoute = null;
+			}
+		}
+	}
 
-    function forEach(list, f) {
+	function forEach(list, f) {
 		for (let i = 0; i < list.length && !f(list[i], i++); ) {
 			// function called in condition
 		}
 	}
 
-    function forKeys(list, f) {
-		forEach(list, (attrs, i) => (attrs = attrs && attrs.attrs) &&
-        attrs.key != null &&
-        f(attrs, i));
+	function forKeys(list, f) {
+		forEach(
+			list,
+			(attrs, i) =>
+				(attrs = attrs && attrs.attrs) &&
+				attrs.key != null &&
+				f(attrs, i)
+		);
 	}
-    // This function was causing deopts in Chrome.
-    function dataToString(data) {
+	// This function was causing deopts in Chrome.
+	function dataToString(data) {
 		// data.toString() might throw or return null if data is the return
 		// value of Console.log in some versions of Firefox (behavior depends on
 		// version)
@@ -357,8 +366,8 @@
 		return "";
 	}
 
-    // This function was causing deopts in Chrome.
-    function injectTextNode(parentElement, first, index, data) {
+	// This function was causing deopts in Chrome.
+	function injectTextNode(parentElement, first, index, data) {
 		try {
 			insertNode(parentElement, first, index);
 			first.nodeValue = data;
@@ -368,7 +377,7 @@
 		}
 	}
 
-    function flatten(list) {
+	function flatten(list) {
 		// recursively flatten array
 		for (let i = 0; i < list.length; i++) {
 			if (isArray(list[i])) {
@@ -381,18 +390,18 @@
 		return list;
 	}
 
-    function insertNode(parentElement, node, index) {
+	function insertNode(parentElement, node, index) {
 		parentElement.insertBefore(
 			node,
 			parentElement.childNodes[index] || null
 		);
 	}
 
-    const DELETION = 1;
-    const INSERTION = 2;
-    const MOVE = 3;
+	const DELETION = 1;
+	const INSERTION = 2;
+	const MOVE = 3;
 
-    function handleKeysDiffer(data, existing, cached, parentElement) {
+	function handleKeysDiffer(data, existing, cached, parentElement) {
 		forKeys(data, (key, i) => {
 			existing[(key = key.key)] = existing[key]
 				? {
@@ -452,16 +461,16 @@
 		return newCached;
 	}
 
-    function diffKeys(data, cached, existing, parentElement) {
+	function diffKeys(data, cached, existing, parentElement) {
 		let keysDiffer = data.length !== cached.length;
 
 		if (!keysDiffer) {
-			forKeys(data, ({key}, i) => {
+			forKeys(data, ({ key }, i) => {
 				const cachedCell = cached[i];
-				return keysDiffer =
+				return (keysDiffer =
 					cachedCell &&
 					cachedCell.attrs &&
-					cachedCell.attrs.key !== key;
+					cachedCell.attrs.key !== key);
 			});
 		}
 
@@ -472,7 +481,7 @@
 		}
 	}
 
-    function diffArray(data, cached, nodes) {
+	function diffArray(data, cached, nodes) {
 		// diff the array itself
 
 		// update the list of DOM nodes by collecting the nodes from each item
@@ -493,7 +502,7 @@
 		cached.nodes = nodes;
 	}
 
-    function buildArrayKeys(data) {
+	function buildArrayKeys(data) {
 		let guid = 0;
 		forKeys(data, () => {
 			forEach(data, attrs => {
@@ -505,7 +514,11 @@
 		});
 	}
 
-    function isDifferentEnough({tag, attrs}, {tag, attrs, configContext}, dataAttrKeys) {
+	function isDifferentEnough(
+		{ tag, attrs },
+		{ tag, attrs, configContext },
+		dataAttrKeys
+	) {
 		if (tag !== tag) return true;
 
 		if (
@@ -536,7 +549,7 @@
 		return false;
 	}
 
-    function maybeRecreateObject(data, cached, dataAttrKeys) {
+	function maybeRecreateObject(data, cached, dataAttrKeys) {
 		// if an element is different enough from the one in cache, recreate it
 		if (isDifferentEnough(data, cached, dataAttrKeys)) {
 			if (cached.nodes.length) clear(cached.nodes);
@@ -558,18 +571,18 @@
 		}
 	}
 
-    function getObjectNamespace({attrs, tag}, namespace) {
+	function getObjectNamespace({ attrs, tag }, namespace) {
 		if (attrs.xmlns) return attrs.xmlns;
 		if (tag === "svg") return "http://www.w3.org/2000/svg";
 		if (tag === "math") return "http://www.w3.org/1998/Math/MathML";
 		return namespace;
 	}
 
-    let pendingRequests = 0;
-    m.startComputation = () => {
+	let pendingRequests = 0;
+	m.startComputation = () => {
 		pendingRequests++;
 	};
-    m.endComputation = () => {
+	m.endComputation = () => {
 		if (pendingRequests > 1) {
 			pendingRequests--;
 		} else {
@@ -578,7 +591,7 @@
 		}
 	};
 
-    function unloadCachedControllers(cached, views, controllers) {
+	function unloadCachedControllers(cached, views, controllers) {
 		if (controllers.length) {
 			cached.views = views;
 			cached.controllers = controllers;
@@ -596,34 +609,30 @@
 		}
 	}
 
-    function scheduleConfigsToBeCalled(configs, data, node, isNew, cached) {
+	function scheduleConfigsToBeCalled(configs, data, node, isNew, cached) {
 		// schedule configs to be called. They are called after `build` finishes
 		// running
 		if (isFunction(data.attrs.config)) {
 			const context = (cached.configContext = cached.configContext || {});
 
 			// bind
-			configs.push(() => data.attrs.config.call(
-                data,
-                node,
-                !isNew,
-                context,
-                cached
-            ));
+			configs.push(() =>
+				data.attrs.config.call(data, node, !isNew, context, cached)
+			);
 		}
 	}
 
-    // 更新用のnode作成器
-    function buildUpdatedNode(
-        cached,
-        {tag, attrs, children},
-        editable,
-        hasKeys,
-        namespace,
-        views,
-        configs,
-        controllers
-    ) {
+	// 更新用のnode作成器
+	function buildUpdatedNode(
+		cached,
+		{ tag, attrs, children },
+		editable,
+		hasKeys,
+		namespace,
+		views,
+		configs,
+		controllers
+	) {
 		const node = cached.nodes[0];
 
 		if (hasKeys) {
@@ -656,7 +665,7 @@
 		return node;
 	}
 
-    function handleNonexistentNodes(data, parentElement, index) {
+	function handleNonexistentNodes(data, parentElement, index) {
 		let nodes;
 		if (data.$trusted) {
 			nodes = injectHTML(parentElement, index, data);
@@ -683,7 +692,7 @@
 		return cached;
 	}
 
-    function reattachNodes(
+	function reattachNodes(
 		data,
 		cached,
 		parentElement,
@@ -727,7 +736,7 @@
 		return cached;
 	}
 
-    function handleTextNode(
+	function handleTextNode(
 		cached,
 		data,
 		index,
@@ -752,7 +761,7 @@
 		}
 	}
 
-    function getSubArrayCount(item) {
+	function getSubArrayCount(item) {
 		if (item.$trusted) {
 			// fix offset of next element if item was a trusted string w/ more
 			// than one html element
@@ -763,7 +772,7 @@
 		return 1;
 	}
 
-    function buildArray(
+	function buildArray(
 		data,
 		cached,
 		parentElement,
@@ -831,13 +840,14 @@
 		return cached;
 	}
 
-    function makeCache(data, cached, index, parentIndex, parentCache) {
+	function makeCache(data, cached, index, parentIndex, parentCache) {
 		if (cached != null) {
 			if (type.call(cached) === type.call(data)) return cached;
 
 			if (parentCache && parentCache.nodes) {
 				const offset = index - parentIndex;
-				const end = offset + (isArray(data) ? data : cached.nodes).length;
+				const end =
+					offset + (isArray(data) ? data : cached.nodes).length;
 				clear(
 					parentCache.nodes.slice(offset, end),
 					parentCache.slice(offset, end)
@@ -855,17 +865,13 @@
 		return cached;
 	}
 
-    // たぶんここがnodeの実態作るところ
-    function constructNode({attrs, tag}, namespace) {
+	// たぶんここがnodeの実態作るところ
+	function constructNode({ attrs, tag }, namespace) {
 		if (attrs.is) {
 			if (namespace == null) {
 				return $document.createElement(tag, attrs.is);
 			} else {
-				return $document.createElementNS(
-					namespace,
-					tag,
-					attrs.is
-				);
+				return $document.createElementNS(namespace, tag, attrs.is);
 			}
 		} else if (namespace == null) {
 			return $document.createElement(tag);
@@ -874,7 +880,7 @@
 		}
 	}
 
-    function constructAttrs({tag, attrs}, node, namespace, hasKeys) {
+	function constructAttrs({ tag, attrs }, node, namespace, hasKeys) {
 		if (hasKeys) {
 			return setAttributes(node, tag, attrs, {}, namespace);
 		} else {
@@ -882,7 +888,14 @@
 		}
 	}
 
-    function constructChildren({children, tag, attrs}, node, {children}, editable, namespace, configs) {
+	function constructChildren(
+		{ children, tag, attrs },
+		node,
+		{ children },
+		editable,
+		namespace,
+		configs
+	) {
 		if (children != null && children.length > 0) {
 			return build(
 				node,
@@ -902,7 +915,15 @@
 		}
 	}
 
-    function reconstructCached({tag}, attrs, children, node, namespace, views, controllers) {
+	function reconstructCached(
+		{ tag },
+		attrs,
+		children,
+		node,
+		namespace,
+		views,
+		controllers
+	) {
 		const cached = {
 			tag: tag,
 			attrs,
@@ -919,7 +940,7 @@
 		return cached;
 	}
 
-    function getController(views, view, cachedControllers, controller) {
+	function getController(views, view, cachedControllers, controller) {
 		let controllerIndex;
 
 		if (m.redraw.strategy() === "diff" && views) {
@@ -937,13 +958,14 @@
 		}
 	}
 
-    let unloaders = [];
+	let unloaders = [];
 
-    function updateLists(views, controllers, view, controller) {
+	function updateLists(views, controllers, view, controller) {
 		if (
 			controller.onunload != null &&
 			!unloaders
-				.map(({handler}) => handler).includes(controller.onunload)
+				.map(({ handler }) => handler)
+				.includes(controller.onunload)
 		) {
 			unloaders.push({
 				controller,
@@ -955,8 +977,8 @@
 		controllers.push(controller);
 	}
 
-    let forcing = false;
-    function checkView(
+	let forcing = false;
+	function checkView(
 		data,
 		view,
 		cached,
@@ -990,7 +1012,7 @@
 		return data;
 	}
 
-    function markViews(data, cached, views, controllers) {
+	function markViews(data, cached, views, controllers) {
 		const cachedControllers = cached && cached.controllers;
 
 		while (data.view != null) {
@@ -1007,8 +1029,8 @@
 		return data;
 	}
 
-    // node生成ロジック
-    function buildObject( // eslint-disable-line max-statements
+	// node生成ロジック
+	function buildObject( // eslint-disable-line max-statements
 		data,
 		cached,
 		editable,
@@ -1111,8 +1133,8 @@
 		return cached;
 	}
 
-    // domの差分を検知してcache等々をアップデートするコア機能
-    function build(
+	// domの差分を検知してcache等々をアップデートするコア機能
+	function build(
 		parentElement,
 		parentTag,
 		parentCache,
@@ -1219,11 +1241,11 @@
 		}
 	}
 
-    function sortChanges({action, index}, {action, index}) {
+	function sortChanges({ action, index }, { action, index }) {
 		return action - action || index - index;
 	}
 
-    function copyStyleAttrs(node, dataAttr, cachedAttr) {
+	function copyStyleAttrs(node, dataAttr, cachedAttr) {
 		if (cachedAttr === dataAttr) {
 			node.style = "";
 			cachedAttr = {};
@@ -1243,7 +1265,7 @@
 		}
 	}
 
-    const shouldUseSetAttribute = {
+	const shouldUseSetAttribute = {
 		list: 1,
 		style: 1,
 		form: 1,
@@ -1252,7 +1274,7 @@
 		height: 1
 	};
 
-    function setSingleAttr(
+	function setSingleAttr(
 		node,
 		attrName,
 		dataAttr,
@@ -1321,7 +1343,7 @@
 		}
 	}
 
-    function trySetAttr(
+	function trySetAttr(
 		node,
 		attrName,
 		dataAttr,
@@ -1364,7 +1386,7 @@
 		}
 	}
 
-    function setAttributes(node, tag, dataAttrs, cachedAttrs, namespace) {
+	function setAttributes(node, tag, dataAttrs, cachedAttrs, namespace) {
 		for (const attrName in dataAttrs) {
 			if (hasOwn.call(dataAttrs, attrName)) {
 				if (
@@ -1385,7 +1407,7 @@
 		return cachedAttrs;
 	}
 
-    function clear(nodes, cached) {
+	function clear(nodes, cached) {
 		for (let i = nodes.length - 1; i > -1; i--) {
 			if (nodes[i] && nodes[i].parentNode) {
 				try {
@@ -1407,7 +1429,7 @@
 		}
 	}
 
-    function unload(cached) {
+	function unload(cached) {
 		if (cached.configContext && isFunction(cached.configContext.onunload)) {
 			cached.configContext.onunload();
 			cached.configContext.onunload = null;
@@ -1425,7 +1447,7 @@
 		}
 	}
 
-    function appendTextFragment(parentElement, data) {
+	function appendTextFragment(parentElement, data) {
 		try {
 			parentElement.appendChild(
 				$document.createRange().createContextualFragment(data)
@@ -1436,10 +1458,10 @@
 		}
 	}
 
-    // Replace script tags inside given DOM element with executable ones.
-    // Will also check children recursively and replace any found script
-    // tags in same manner.
-    function replaceScriptNodes(node) {
+	// Replace script tags inside given DOM element with executable ones.
+	// Will also check children recursively and replace any found script
+	// tags in same manner.
+	function replaceScriptNodes(node) {
 		if (node.tagName === "SCRIPT") {
 			node.parentNode.replaceChild(buildExecutableNode(node), node);
 		} else {
@@ -1454,8 +1476,8 @@
 		return node;
 	}
 
-    // Replace script element with one whose contents are executable.
-    function buildExecutableNode({attributes, innerHTML}) {
+	// Replace script element with one whose contents are executable.
+	function buildExecutableNode({ attributes, innerHTML }) {
 		const scriptEl = document.createElement("script");
 		const attrs = attributes;
 
@@ -1467,7 +1489,7 @@
 		return scriptEl;
 	}
 
-    function injectHTML(parentElement, index, data) {
+	function injectHTML(parentElement, index, data) {
 		const nextSibling = parentElement.childNodes[index];
 		if (nextSibling) {
 			const isElement = nextSibling.nodeType !== 1;
@@ -1493,20 +1515,20 @@
 		return nodes;
 	}
 
-    function autoredraw(callback, object) {
+	function autoredraw(callback, object) {
 		return (e = event) => {
-            m.redraw.strategy("diff");
-            m.startComputation();
-            try {
+			m.redraw.strategy("diff");
+			m.startComputation();
+			try {
 				return callback.call(object, e);
 			} finally {
 				endFirstComputation();
 			}
-        };
+		};
 	}
 
-    let html;
-    const documentNode = {
+	let html;
+	const documentNode = {
 		appendChild(node) {
 			if (html === undefined) html = $document.createElement("html");
 			if (
@@ -1528,10 +1550,10 @@
 		childNodes: []
 	};
 
-    const nodeCache = [];
-    const cellCache = {};
+	const nodeCache = [];
+	const cellCache = {};
 
-    m.render = (root, cell, forceRecreation) => {
+	m.render = (root, cell, forceRecreation) => {
 		if (!root) {
 			throw new Error(
 				"Ensure the DOM element being passed to " +
@@ -1575,18 +1597,18 @@
 		});
 	};
 
-    function getCellCacheKey(element) {
+	function getCellCacheKey(element) {
 		const index = nodeCache.indexOf(element);
 		return index < 0 ? nodeCache.push(element) - 1 : index;
 	}
 
-    m.trust = value => {
+	m.trust = value => {
 		value = new String(value); // eslint-disable-line no-new-wrappers
 		value.$trusted = true;
 		return value;
 	};
 
-    function gettersetter(store) {
+	function gettersetter(store) {
 		function prop(...args) {
 			if (args.length) store = args[0];
 			return store;
@@ -1600,7 +1622,7 @@
 		return prop;
 	}
 
-    m.prop = store => {
+	m.prop = store => {
 		if (
 			((store != null && (isObject(store) || isFunction(store))) ||
 				(typeof Promise !== "undefined" && store instanceof Promise)) &&
@@ -1612,17 +1634,17 @@
 		return gettersetter(store);
 	};
 
-    const roots = [];
-    const components = [];
-    const controllers = [];
-    let lastRedrawId = null;
-    let lastRedrawCallTime = 0;
-    let computePreRedrawHook = null;
-    let computePostRedrawHook = null;
-    let topComponent;
-    const FRAME_BUDGET = 16; // 60 frames per second = 1 call per 16 ms
+	const roots = [];
+	const components = [];
+	const controllers = [];
+	let lastRedrawId = null;
+	let lastRedrawCallTime = 0;
+	let computePreRedrawHook = null;
+	let computePostRedrawHook = null;
+	let topComponent;
+	const FRAME_BUDGET = 16; // 60 frames per second = 1 call per 16 ms
 
-    function parameterize(component, args) {
+	function parameterize(component, args) {
 		function controller() {
 			/* eslint-disable no-invalid-this */
 			return (component.controller || noop).apply(this, args) || this;
@@ -1648,10 +1670,10 @@
 		return output;
 	}
 
-    let currentRoute;
-    let previousRoute;
+	let currentRoute;
+	let previousRoute;
 
-    function checkPrevented(component, root, index, isPrevented) {
+	function checkPrevented(component, root, index, isPrevented) {
 		if (!isPrevented) {
 			m.redraw.strategy("all");
 			m.startComputation();
@@ -1692,7 +1714,7 @@
 		}
 	}
 
-    m.mount = m.module = (root, component) => {
+	m.mount = m.module = (root, component) => {
 		if (!root) {
 			throw new Error(
 				"Ensure the DOM element being passed to " +
@@ -1711,13 +1733,13 @@
 			}
 		};
 
-		forEach(unloaders, ({handler, controller}) => {
+		forEach(unloaders, ({ handler, controller }) => {
 			handler.call(controller, event);
 			controller.onunload = null;
 		});
 
 		if (isPrevented) {
-			forEach(unloaders, ({controller, handler}) => {
+			forEach(unloaders, ({ controller, handler }) => {
 				controller.onunload = handler;
 			});
 		} else {
@@ -1731,7 +1753,7 @@
 		return checkPrevented(component, root, index, isPrevented);
 	};
 
-    function removeRootElement(root, index) {
+	function removeRootElement(root, index) {
 		roots.splice(index, 1);
 		controllers.splice(index, 1);
 		components.splice(index, 1);
@@ -1740,8 +1762,8 @@
 		unloaders = [];
 	}
 
-    let redrawing = false;
-    m.redraw = force => {
+	let redrawing = false;
+	m.redraw = force => {
 		if (redrawing) return;
 		redrawing = true;
 		if (force) forcing = true;
@@ -1774,8 +1796,8 @@
 		}
 	};
 
-    m.redraw.strategy = m.prop();
-    function redraw() {
+	m.redraw.strategy = m.prop();
+	function redraw() {
 		if (computePreRedrawHook) {
 			computePreRedrawHook();
 			computePreRedrawHook = null;
@@ -1801,7 +1823,7 @@
 		m.redraw.strategy("diff");
 	}
 
-    function endFirstComputation() {
+	function endFirstComputation() {
 		if (m.redraw.strategy() === "none") {
 			pendingRequests--;
 			m.redraw.strategy("diff");
@@ -1810,25 +1832,26 @@
 		}
 	}
 
-    m.withAttr = (prop, withAttrCallback, callbackThis) => (function(e = window.event) {
-        /* eslint-disable no-invalid-this */
-        const currentTarget = e.currentTarget || this;
-        const _this = callbackThis || this;
-        /* eslint-enable no-invalid-this */
-        const target =
-            prop in currentTarget
-                ? currentTarget[prop]
-                : currentTarget.getAttribute(prop);
-        withAttrCallback.call(_this, target);
-    });
+	m.withAttr = (prop, withAttrCallback, callbackThis) =>
+		function(e = window.event) {
+			/* eslint-disable no-invalid-this */
+			const currentTarget = e.currentTarget || this;
+			const _this = callbackThis || this;
+			/* eslint-enable no-invalid-this */
+			const target =
+				prop in currentTarget
+					? currentTarget[prop]
+					: currentTarget.getAttribute(prop);
+			withAttrCallback.call(_this, target);
+		};
 
-    // routing
-    const modes = { pathname: "", hash: "#", search: "?" };
-    let redirect = noop;
-    let isDefaultRoute = false;
-    let routeParams;
+	// routing
+	const modes = { pathname: "", hash: "#", search: "?" };
+	let redirect = noop;
+	let isDefaultRoute = false;
+	let routeParams;
 
-    m.route.param = key => {
+	m.route.param = key => {
 		if (!routeParams) {
 			throw new Error(
 				"You must call m.route(element, defaultRoute, " +
@@ -1843,13 +1866,13 @@
 		return routeParams[key];
 	};
 
-    m.route.mode = "search";
+	m.route.mode = "search";
 
-    function normalizeRoute(route) {
+	function normalizeRoute(route) {
 		return route.slice(modes[m.route.mode].length);
 	}
 
-    function routeByValue(root, router, path) {
+	function routeByValue(root, router, path) {
 		routeParams = {};
 
 		const queryStart = path.indexOf("?");
@@ -1879,8 +1902,8 @@
 
 				const matcher = new RegExp(
 					`^${route
-    .replace(/:[^\/]+?\.{3}/g, "(.*?)")
-    .replace(/:[^\/]+/g, "([^\\/]+)")}/?$`
+						.replace(/:[^\/]+?\.{3}/g, "(.*?)")
+						.replace(/:[^\/]+/g, "([^\\/]+)")}/?$`
 				);
 
 				if (matcher.test(path)) {
@@ -1902,37 +1925,37 @@
 		}
 	}
 
-    function routeUnobtrusive(e = event) {
-        if (e.ctrlKey || e.metaKey || e.shiftKey || e.which === 2) return;
+	function routeUnobtrusive(e = event) {
+		if (e.ctrlKey || e.metaKey || e.shiftKey || e.which === 2) return;
 
-        if (e.preventDefault) {
+		if (e.preventDefault) {
 			e.preventDefault();
 		} else {
 			e.returnValue = false;
 		}
 
-        let currentTarget = e.currentTarget || e.srcElement;
-        let args;
+		let currentTarget = e.currentTarget || e.srcElement;
+		let args;
 
-        if (m.route.mode === "pathname" && currentTarget.search) {
+		if (m.route.mode === "pathname" && currentTarget.search) {
 			args = parseQueryString(currentTarget.search.slice(1));
 		} else {
 			args = {};
 		}
 
-        while (currentTarget && !/a/i.test(currentTarget.nodeName)) {
+		while (currentTarget && !/a/i.test(currentTarget.nodeName)) {
 			currentTarget = currentTarget.parentNode;
 		}
 
-        // clear pendingRequests because we want an immediate route change
-        pendingRequests = 0;
-        m.route(
+		// clear pendingRequests because we want an immediate route change
+		pendingRequests = 0;
+		m.route(
 			currentTarget[m.route.mode].slice(modes[m.route.mode].length),
 			args
 		);
-    }
+	}
 
-    function setScroll() {
+	function setScroll() {
 		if (m.route.mode !== "hash" && $location.hash) {
 			$location.hash = $location.hash;
 		} else {
@@ -1940,7 +1963,7 @@
 		}
 	}
 
-    function buildQueryString(object, prefix) {
+	function buildQueryString(object, prefix) {
 		const duplicates = {};
 		const str = [];
 
@@ -1962,14 +1985,18 @@
 						if (!duplicates[key][item]) {
 							duplicates[key][item] = true;
 							keys.push(
-								`${encodeURIComponent(key)}=${encodeURIComponent(item)}`
+								`${encodeURIComponent(
+									key
+								)}=${encodeURIComponent(item)}`
 							);
 						}
 					});
 					str.push(keys.join("&"));
 				} else if (value !== undefined) {
 					str.push(
-						`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+						`${encodeURIComponent(key)}=${encodeURIComponent(
+							value
+						)}`
 					);
 				}
 			}
@@ -1978,7 +2005,7 @@
 		return str.join("&");
 	}
 
-    function parseQueryString(str) {
+	function parseQueryString(str) {
 		if (str === "" || str == null) return {};
 		if (str.charAt(0) === "?") str = str.slice(1);
 
@@ -1988,7 +2015,8 @@
 		forEach(pairs, string => {
 			const pair = string.split("=");
 			const key = decodeURIComponent(pair[0]);
-			const value = pair.length === 2 ? decodeURIComponent(pair[1]) : null;
+			const value =
+				pair.length === 2 ? decodeURIComponent(pair[1]) : null;
 			if (params[key] != null) {
 				if (!isArray(params[key])) params[key] = [params[key]];
 				params[key].push(value);
@@ -1998,47 +2026,48 @@
 		return params;
 	}
 
-    m.route.buildQueryString = buildQueryString;
-    m.route.parseQueryString = parseQueryString;
+	m.route.buildQueryString = buildQueryString;
+	m.route.parseQueryString = parseQueryString;
 
-    function reset(root) {
+	function reset(root) {
 		const cacheKey = getCellCacheKey(root);
 		clear(root.childNodes, cellCache[cacheKey]);
 		cellCache[cacheKey] = undefined;
 	}
 
-    m.deferred = () => {
+	m.deferred = () => {
 		const deferred = new Deferred();
 		deferred.promise = propify(deferred.promise);
 		return deferred;
 	};
 
-    function propify(promise, initialValue) {
+	function propify(promise, initialValue) {
 		const prop = m.prop(initialValue);
 		promise.then(prop);
-		prop.then = (resolve, reject) => propify(promise.then(resolve, reject), initialValue);
+		prop.then = (resolve, reject) =>
+			propify(promise.then(resolve, reject), initialValue);
 
 		prop["catch"] = prop.then.bind(null, null);
 		return prop;
 	}
-    // Promiz.mithril.js | Zolmeister | MIT
-    // a modified version of Promiz.js, which does not conform to Promises/A+
-    // for two reasons:
-    //
-    // 1) `then` callbacks are called synchronously (because setTimeout is too
-    //    slow, and the setImmediate polyfill is too big
-    //
-    // 2) throwing subclasses of Error cause the error to be bubbled up instead
-    //    of triggering rejection (because the spec does not account for the
-    //    important use case of default browser error handling, i.e. message w/
-    //    line number)
+	// Promiz.mithril.js | Zolmeister | MIT
+	// a modified version of Promiz.js, which does not conform to Promises/A+
+	// for two reasons:
+	//
+	// 1) `then` callbacks are called synchronously (because setTimeout is too
+	//    slow, and the setImmediate polyfill is too big
+	//
+	// 2) throwing subclasses of Error cause the error to be bubbled up instead
+	//    of triggering rejection (because the spec does not account for the
+	//    important use case of default browser error handling, i.e. message w/
+	//    line number)
 
-    const RESOLVING = 1;
-    const REJECTING = 2;
-    const RESOLVED = 3;
-    const REJECTED = 4;
+	const RESOLVING = 1;
+	const REJECTING = 2;
+	const RESOLVED = 3;
+	const REJECTED = 4;
 
-    function Deferred(onSuccess, onFailure) {
+	function Deferred(onSuccess, onFailure) {
 		const self = this;
 		let state = 0;
 		let promiseValue = 0;
@@ -2188,7 +2217,7 @@
 		}
 	}
 
-    m.deferred.onerror = e => {
+	m.deferred.onerror = e => {
 		if (
 			type.call(e) === "[object Error]" &&
 			!/ Error/.test(e.constructor.toString())
@@ -2198,7 +2227,7 @@
 		}
 	};
 
-    m.sync = args => {
+	m.sync = args => {
 		const deferred = m.deferred();
 		let outstanding = args.length;
 		const results = [];
@@ -2227,14 +2256,16 @@
 		return deferred.promise;
 	};
 
-    function identity(value) {
+	function identity(value) {
 		return value;
 	}
 
-    function handleJsonp(options) {
+	function handleJsonp(options) {
 		const callbackKey =
 			options.callbackName ||
-			`mithril_callback_${new Date().getTime()}_${Math.round(Math.random() * 1e16).toString(36)}`;
+			`mithril_callback_${new Date().getTime()}_${Math.round(
+				Math.random() * 1e16
+			).toString(36)}`;
 
 		const script = $document.createElement("script");
 
@@ -2268,15 +2299,18 @@
 
 		script.onload = () => false;
 
-		script.src =
-			`${options.url +
-(options.url.indexOf("?") > 0 ? "&" : "?") +
-(options.callbackKey ? options.callbackKey : "callback")}=${callbackKey}&${buildQueryString(options.data || {})}`;
+		script.src = `${options.url +
+			(options.url.indexOf("?") > 0 ? "&" : "?") +
+			(options.callbackKey
+				? options.callbackKey
+				: "callback")}=${callbackKey}&${buildQueryString(
+			options.data || {}
+		)}`;
 
 		$document.body.appendChild(script);
 	}
 
-    function createXhr(options) {
+	function createXhr(options) {
 		let xhr = new global.XMLHttpRequest();
 		xhr.open(
 			options.method,
@@ -2338,7 +2372,7 @@
 		return xhr;
 	}
 
-    function ajax(options) {
+	function ajax(options) {
 		if (options.dataType && options.dataType.toLowerCase() === "jsonp") {
 			return handleJsonp(options);
 		} else {
@@ -2346,7 +2380,7 @@
 		}
 	}
 
-    function bindData(options, data, serialize) {
+	function bindData(options, data, serialize) {
 		if (options.method === "GET" && options.dataType !== "jsonp") {
 			const prefix = !options.url.includes("?") ? "?" : "&";
 			const querystring = buildQueryString(data);
@@ -2356,7 +2390,7 @@
 		}
 	}
 
-    function parameterizeUrl(url, data) {
+	function parameterizeUrl(url, data) {
 		if (data) {
 			url = url.replace(/:[a-z]\w+/gi, token => {
 				const key = token.slice(1);
@@ -2368,20 +2402,20 @@
 		return url;
 	}
 
-    m.request = options => {
-        if (options.background !== true) m.startComputation();
-        const deferred = new Deferred();
-        const isJSONP =
+	m.request = options => {
+		if (options.background !== true) m.startComputation();
+		const deferred = new Deferred();
+		const isJSONP =
 			options.dataType && options.dataType.toLowerCase() === "jsonp";
 
-        let serialize;
-        let deserialize;
-        let extract;
+		let serialize;
+		let deserialize;
+		let extract;
 
-        if (isJSONP) {
+		if (isJSONP) {
 			serialize = options.serialize = deserialize = options.deserialize = identity;
 
-			extract = ({responseText}) => responseText;
+			extract = ({ responseText }) => responseText;
 		} else {
 			serialize = options.serialize = options.serialize || JSON.stringify;
 
@@ -2389,7 +2423,7 @@
 				options.deserialize || JSON.parse;
 			extract =
 				options.extract ||
-				(({responseText}) => {
+				(({ responseText }) => {
 					if (responseText.length || deserialize !== JSON.parse) {
 						return responseText;
 					} else {
@@ -2398,10 +2432,10 @@
 				});
 		}
 
-        options.method = (options.method || "GET").toUpperCase();
-        options.url = parameterizeUrl(options.url, options.data);
-        bindData(options, options.data, serialize);
-        options.onload = options.onerror = ev => {
+		options.method = (options.method || "GET").toUpperCase();
+		options.url = parameterizeUrl(options.url, options.data);
+		bindData(options, options.data, serialize);
+		options.onload = options.onerror = ev => {
 			try {
 				ev = ev || event;
 				let response = deserialize(extract(ev.target, options));
@@ -2434,10 +2468,10 @@
 			}
 		};
 
-        ajax(options);
-        deferred.promise = propify(deferred.promise, options.initialValue);
-        return deferred.promise;
-    };
+		ajax(options);
+		deferred.promise = propify(deferred.promise, options.initialValue);
+		return deferred.promise;
+	};
 
-    return m;
+	return m;
 }); // eslint-disable-line
